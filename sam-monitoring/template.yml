@@ -1,0 +1,36 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Parameters:
+  stackName: 
+    Type: String
+  emergencyTopic:
+    Type: String
+Resources:
+  AlarmsWithCF:
+    Type: AWS::Serverless::Function
+    Properties:
+      Environment:
+        Variables:
+          STACK_NAME: !Ref stackName
+          EMERGENCY_TOPIC: !Ref emergencyTopic
+      Handler: inventory_scan.handler
+      CodeUri: src
+      Runtime: python3.7
+      Policies: 
+        - Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action: 
+                - 'config:SelectResourceConfig' #Config
+                - 'cloudformation:Describe*'
+                - 'cloudformation:CreateStack' #CreateStackCloudFormation
+                - 'cloudformation:UpdateStack' #UpdateStackCloudFormation
+                - 'cloudwatch:DescribeAlarms'
+                - 'cloudwatch:PutMetricAlarm'
+                - 'cloudwatch:DeleteAlarms'
+              Resource: '*'
+      Events:
+        CheckAlarmsScheduledEvent:
+          Type: Schedule
+          Properties:
+            Schedule: cron(0/120 8-18 ? * MON-FRI *)

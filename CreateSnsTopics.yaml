@@ -1,0 +1,85 @@
+# Set AWS template version
+AWSTemplateFormatVersion: "2010-09-09"
+
+# Set Description
+Description: (c) CloudNation 2020
+
+# Set Parameters
+Parameters:
+  PublishScope: {Description: Whether or not the account or the whole organization can publish, Type: String}
+  OrgId:        {Description: The organization id to give access to, Type: String }
+  AlertPrefix:  {Description: Prefix of the name of the alert topic, Type: String }
+Conditions:
+  HasOrgAccess: !Equals [!Ref PublishScope, "Organization"]
+
+# Define Resources
+Resources:
+  LowPrioTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: !Sub "${AlertPrefix}lowprio"
+      TopicName: !Sub "${AlertPrefix}lowprio"
+
+  StandardTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: !Sub "${AlertPrefix}standard"
+      TopicName: !Sub "${AlertPrefix}standard"
+
+  EmergencyTopic:
+    Type: "AWS::SNS::Topic"
+    Properties:
+      DisplayName: !Sub "${AlertPrefix}emergency"
+      TopicName: !Sub "${AlertPrefix}emergency"
+  BudgetAlertTopicPolicy:
+    Type: 'AWS::SNS::TopicPolicy'
+    Properties:
+      Topics:
+        - !Ref LowPrioTopic
+        - !Ref StandardTopic
+        - !Ref EmergencyTopic
+      PolicyDocument:
+        Id: PublishPolicyBudgets
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublishPolicyBudgets
+            Effect: Allow
+            Principal:
+              Service: budgets.amazonaws.com
+            Resource: "*"
+            Action: 'sns:Publish'
+          - !If
+            - HasOrgAccess
+            - Sid: PublishPolicyOrganization
+              Effect: Allow
+              Principal:
+                AWS: "*"
+              Resource: "*"
+              Action: 'sns:Publish'
+              Condition:
+                StringEquals:
+                  "aws:PrincipalOrgID": !Ref OrgId
+            - Sid: PublishPolicyAccount
+              Effect: Allow
+              Principal:
+                AWS: !Ref "AWS::AccountId"
+              Resource: "*"
+              Action: 'sns:Publish'
+
+# Set some outputs
+Outputs:
+  LowPrioTopicExport:
+    Description: SNS notification Topic
+    Value: !Ref LowPrioTopic
+    Export:
+      Name: !Sub "${AWS::StackName}-LowPrioTopic"
+  StandardTopicExport:
+    Description: SNS notification Topic
+    Value: !Ref StandardTopic
+    Export:
+      Name: !Sub "${AWS::StackName}-StandardTopic"
+  EmergencyTopicExport:
+    Description: SNS notification Topic
+    Value: !Ref EmergencyTopic
+    Export:
+      Name: !Sub "${AWS::StackName}-EmergencyTopic"

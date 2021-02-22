@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Resources:
+{% for id in instance_ids %}
+  AlarmCPUUtilization{{ id | replace("-", "") }}:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - "{{ EMERGENCY_TOPIC }}"
+      OKActions:
+        - "{{ EMERGENCY_TOPIC }}"
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: InstanceId
+          Value: "{{ id }}" 
+      EvaluationPeriods: 1
+      MetricName: CPUUtilization
+      Namespace: AWS/EC2
+      Period: 300
+      Statistic: Average
+      Threshold: '70'
+  AlarmDiskUsedPercent{{ id | replace("-", "") }}:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - "{{ EMERGENCY_TOPIC }}"
+      OKActions:
+        - "{{ EMERGENCY_TOPIC }}"
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: InstanceId
+          Value: "{{ id }}" 
+      EvaluationPeriods: 1
+      MetricName: disk_used_percent
+      Namespace: AWS/CWAgent
+      Period: 300
+      Statistic: Average
+      Threshold: '80'
+  AlarmMemUsedPercent{{ id | replace("-", "") }}:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmActions:
+        - "{{ EMERGENCY_TOPIC }}"
+      OKActions:
+        - "{{ EMERGENCY_TOPIC }}"
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: InstanceId
+          Value: "{{ id }}" 
+      EvaluationPeriods: 1
+      MetricName: mem_used_percent
+      Namespace: AWS/CWAgent
+      Period: 300
+      Statistic: Average
+      Threshold: '75'  
+{% endfor %}

@@ -79,8 +79,3 @@ def handler(event, context):
         update_cloudformation(template_body)
     except Exception:
         raise
-
-
-# if __name__ == "__main__":
-#     event = {'hi': 'world'}
-#     sum_2_numbers(event, {})

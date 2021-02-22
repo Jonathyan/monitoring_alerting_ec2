@@ -18,7 +18,9 @@ Before we start, there are some requirements.
 - Memory and disk space utilization metrics are being sent to CloudWatch Alarms.
 - AWS CLI locally installed
 - AWS SAM CLI locallly installed
+- AWS Config configured
 
+![Alt text](./architecture.png?raw=true "Solution Architecture")
 
 ## SNS - Notifications
 For the first part, we prepare AWS SNS to receive notifications about the EC2 instances and pass them on via mail, Slack or something else of your liking. In this demo you see my mail address in the screenshot below. To deploy SNS we use a separate CloudFormation stack to have flexibility in your communications to the engineering team.
@@ -30,7 +32,6 @@ For the first part, we prepare AWS SNS to receive notifications about the EC2 in
 
 ## Config (Advanced Queries) - Know what needs to be measured
 In the second part, we need to know what needs to be measured. In this example we query our cloud environment what EC2 instances are running with Advanced Queries within AWS Config. Queries can get expensive if you are checking every minute, so we settle for a daily scan. According to the running EC2 instances found, we kick-off a CloudFormation stack. In the picture below we find two instances. This first part is automated with Python (boto3) in a Lambda function deployed with AWS SAM. So we can set it and forget it.
-
 
 - Look up the ARN of the SNS ls in the Management Console, go directly to SNS (or find it via CloudFormation --> Resources --> SNS).
 - Install and run docker on your MacBook/Windows

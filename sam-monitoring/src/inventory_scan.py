@@ -46,9 +46,6 @@ def create_cloudformation(template_body):
     cloudformation.create_stack(
         StackName=STACK_NAME,
         TemplateBody=template_body,
-        # NotificationARNs=[
-        #     mcs_topic,  # To-do: make an MCS AWS account for cloud management!
-        # ],                #CREATE TOPIC FOR INTERNAL MONITORING!
         Tags=[
             {"Key": "string", "Value": "string"},
         ],
@@ -59,9 +56,6 @@ def update_cloudformation(template_body):
     cloudformation.update_stack(
         StackName=STACK_NAME,
         TemplateBody=template_body,
-        # NotificationARNs=[
-        #     mcs_topic,  # To-do: make an MCS AWS account for cloud management!
-        # ],                #CREATE TOPIC FOR INTERNAL MONITORING!
         Tags=[
             {"Key": "string", "Value": "string"},
         ],

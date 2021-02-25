@@ -6,12 +6,7 @@ Description: (c) CloudNation 2020
 
 # Set Parameters
 Parameters:
-  PublishScope: {Description: Whether or not the account or the whole organization can publish, Type: String}
-  OrgId:        {Description: The organization id to give access to, Type: String }
   AlertPrefix:  {Description: Prefix of the name of the alert topic, Type: String }
-Conditions:
-  HasOrgAccess: !Equals [!Ref PublishScope, "Organization"]
-
 # Define Resources
 Resources:
   LowPrioTopic:
@@ -48,23 +43,16 @@ Resources:
               Service: budgets.amazonaws.com
             Resource: "*"
             Action: 'sns:Publish'
-          - !If
-            - HasOrgAccess
-            - Sid: PublishPolicyOrganization
-              Effect: Allow
-              Principal:
-                AWS: "*"
-              Resource: "*"
-              Action: 'sns:Publish'
-              Condition:
-                StringEquals:
-                  "aws:PrincipalOrgID": !Ref OrgId
-            - Sid: PublishPolicyAccount
-              Effect: Allow
-              Principal:
-                AWS: !Ref "AWS::AccountId"
-              Resource: "*"
-              Action: 'sns:Publish'
+          - Sid: Allow_Publish_Alarms
+            Effect: Allow
+            Principal:
+              Service:
+              - cloudwatch.amazonaws.com
+            Action: sns:Publish
+            Resource: 
+              - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${LowPrioTopic}'
+              - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${StandardTopic}'
+              - !Sub 'arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${EmergencyTopic}'
 
 # Set some outputs
 Outputs:

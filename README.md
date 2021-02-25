@@ -43,6 +43,17 @@ In the second part, we need to know what needs to be measured. In this example w
 ## CloudFormation & CloudWatch Alarms - only use alarms that you need
 Finally, in the third part the CloudFormation stack is being created to manage our Alarms that send actionable notifications. With this stack CloudWatch Alarms are being created and gracefully deleted according to the scheduled findings of Config, so you don’t end up with an expensive mess when instances are terminated. 
 
+
+# Solution Architecture choices
+
+Extendibili
+
+## Cloudformation
+
+
+## Config vs EventBridge
+
+
 # The Conclusion
 
 Within this solution, we have seen we only have (1) a CloudFormation stack to launch for setting up SNS, and (2) a Lambda function to deploy to start searching and setting up things to measure. When you extend it to other metrics, you can easily manage a large-scale environment cost effectively and quickly set up monitoring & alerting using infrastructure as code.
